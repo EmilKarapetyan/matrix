@@ -5,7 +5,7 @@
 
 int main(){
 	
-	Matrix<int> matr1(4,8);
+	Matrix<int> matr1(1,2);
 	Matrix<int> matr2(7,12,6);
 
 	std::cout<<"Printing matrix 1\n";
@@ -22,11 +22,10 @@ int main(){
 	matr4.print();
 	
 	Matrix<int> matr12(7,12,6);
-	std::cout<<__PRETTY_FUNCTION__<<" : "<<__LINE__<<"\n";
 	Matrix<int> matr5 = std::move(matr12);
 
 	std::cout<<"Printing matrix 5\n";
 	matr5.print();
-	
+
 	return 0;
 }
