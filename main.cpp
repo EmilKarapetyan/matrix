@@ -4,7 +4,7 @@
 
 
 int main(){
-	
+	//I cannot see any matrix structure, this thing is called a vector (it's 1 dimensional)
 	Matrix<int> matr1(1,2);
 	Matrix<int> matr2(7,12,6);
 
