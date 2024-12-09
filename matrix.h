@@ -38,6 +38,7 @@ class Matrix final {
 			m_width = matr.getWidth();
 
 			m_data.resize(m_height);
+			
 			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
 				m_data[hIdx] = matr[hIdx];
 			}
@@ -63,10 +64,8 @@ class Matrix final {
 			return *this;
 		}
 
-		~Matrix() = default{
-		//	delete[] m_data;
-		}
-		
+		~Matrix() = default;
+
 		inline const size_t getWidth() const {
 			return m_width;
 		}
