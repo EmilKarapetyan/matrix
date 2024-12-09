@@ -21,7 +21,7 @@ int main(){
 	std::cout<<"Printing matrix 4\n";
 	matr4.print();
 	
-	Matrix<int> matr12(7,12,6);
+	Matrix<int> matr12(7,12,4);
 	Matrix<int> matr5 = std::move(matr12);
 
 	std::cout<<"Printing matrix 5\n";
