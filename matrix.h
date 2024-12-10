@@ -1,8 +1,7 @@
 #include<vector>
 #include<iostream>
 #include<exception>
-#include<memory>
-
+ 
 template<typename T, typename = typename
 	 std::enable_if_t<std::is_integral<T>::value>>
 class Matrix final {
