@@ -1,5 +1,6 @@
 #include<iostream>
 #include"matrix.h"
+#include<random>
 
 int main(){
 	//I cannot see any matrix structure, this thing is called a vector (it's 1 dimensional)
@@ -27,8 +28,27 @@ int main(){
 	Matrix<int> matr12(7,12,4);
 	Matrix<int> matr5 = std::move(matr12);
 
-	std::cout<<"Printing matrix 5\n";
+	std::cout<<"Printing matrix before Multiplication\n";
 	matr5.print();
+	std::cout<<"Printing matrix after Multiplication\n";
+	matr5 *= 2;
+	matr5.print();
+
+	try {
+		matr5.at(6, 2);
+	}
+	catch(std::exception& ex) {
+		std::cout<<ex.what()<<"\n";
+	}
+
+	Matrix<int> matr6(4,4);
+	matr6.fillMatrix();
+	
+	std::cout<<"Print matr Before Transposal \n";
+	matr6.print();
+	std::cout<<"\n############################################\n";
+	matr6.transpose();
+	matr6.print();
 
 	return 0;
 }
