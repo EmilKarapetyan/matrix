@@ -2,6 +2,9 @@
 #include"matrix.h"
 #include<random>
 
+//#include <googletest/gtest.h>
+
+
 int fib(int n) {
 	if (n <= 1)
 		return n;
@@ -9,7 +12,7 @@ int fib(int n) {
 }
 
 
-int main(){
+int main() {
 	const size_t size = 4;
 	Matrix<int> matr(size, size); //default constructor
 	matr.fillMatrix();
@@ -20,7 +23,7 @@ int main(){
 	matr.print();
 
 	Matrix<int> matr1(4,4);
-	Matrix<int> matr2(7,12,6); //parametrised constructor
+	Matrix<int> matr2(4,4,6); //parametrised constructor
 
 	std::cout<<"Printing matrix 1\n";
 	matr1.print();
@@ -35,17 +38,17 @@ int main(){
 	std::cout<<"Printing matrix 4\n";
 	matr4.print();
 	
-	Matrix<int> matr12(7,12, 5);
+	Matrix<int> matr12(4,4, 5);
 	Matrix<int> matr5 = std::move(matr12); // move constructor
 	
 	std::cout<<"Printing matrix before move assignemnt\n";
 	matr5.print();
 	
-	matr5 = std::move(matr4); //move assignemnt
+	//matr5 = std::move(matr4); //move assignemnt
 
 	std::cout<<"Printing matrix after move assignemnt\n";
 	matr5.print();
-	matr4.print();
+	//matr4.print();
 
 	std::cout<<"Printing matrix before Multiplication\n";
 	matr5.print();
@@ -54,7 +57,7 @@ int main(){
 	matr5.print();
 
 	try {
-		matr5.at(6, 2);
+	//	matr5.at(6, 2);
 	}
 	catch(std::exception& ex) {
 		std::cout<<ex.what()<<"\n";
@@ -71,6 +74,11 @@ int main(){
 
 	int determinant = matr6.determinantOfMatrix(matr6.getHeight());
 	std::cout<<"determinant of matr6 is "<< determinant << "\n";
+
+	Matrix<int> res;
+	matr5.mulMatrix(matr3, res);
+	std::cout<<"\n############################################\n";
+	res.print();
 
 	return 0;
 }

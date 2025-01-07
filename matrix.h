@@ -36,10 +36,10 @@ class Matrix final {
 		}
 
 		//move constructor
-		Matrix(Matrix&& matr) noexcept {
-			m_width = matr.getWidth();
-			m_height = matr.getHeight();
-			m_data.resize(m_height);
+		Matrix(Matrix&& matr) 
+			: m_width(std::move(matr.getWidth())),
+			  m_height(std::move(matr.getHeight())),
+			  m_data(m_height) {
 			
 			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
 				m_data[hIdx] = matr[hIdx];
@@ -62,7 +62,7 @@ class Matrix final {
 		//copy assignment
 		Matrix& operator=(const Matrix& matr) {
 			if (&matr != this) {
-				if (m_height != matr.getHeight() || m_width != matr.getWeight()) {
+				if (m_height != matr.getHeight() || m_width != matr.getWidth()) {
 					m_width = matr.getWidth();
 					m_height = matr.getHeight();
 					m_data.resize(m_height);
@@ -71,6 +71,7 @@ class Matrix final {
 						m_data[hIdx] = new std::vector<T>[m_width];
 					}
 				}
+				
 				for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
 					for (size_t wIdx = 0; wIdx < m_width ; ++wIdx) {
 						m_data[hIdx][wIdx] = matr[hIdx][wIdx];
@@ -113,7 +114,7 @@ class Matrix final {
 
 			return m_data[height][width];
 		}
-		std::vector<T> operator[](size_t rowIdx) const {
+		std::vector<T> operator[](const size_t rowIdx) const {
 			return m_data[rowIdx];
 		}
 		void operator*=(T val) {
@@ -123,6 +124,116 @@ class Matrix final {
 				}
 			}
 		}
+		
+		Matrix<T> divide(const size_t i, const size_t j) {
+			if (i < m_height && j < m_width) {
+				Matrix<T> minor(m_height-1, m_width-1);
+				int row = 0, col = 0;
+				for (int hIdx = 0; hIdx < m_height; ++hIdx) {
+					if ( hIdx == i)
+						continue;
+					col = 0;
+					for (int wIdx = 0; wIdx < m_width; ++wIdx) {
+						if (wIdx == j)
+							continue;
+						minor.setValue(row, col++, m_data[hIdx][wIdx]);
+					}
+					++row;
+				}
+				return minor;
+			}
+			return *this;
+		}
+
+		// Function for finding the cofactor  
+		// matrix[p][q] in tem[][]. num is  
+		// the current values of matrix[][]  
+		void getCofactorMatrix(Matrix<T>& tem, const size_t p1, const size_t q1, const size_t num) {  
+			int i = 0, j = 0;  
+			//Loop for iterating of the matrix  
+			for (int rows = 0; rows < num; ++rows) {
+				for (int cols = 0; cols < num; ++cols) {  
+					// Transferring into a temporary matrix   
+					// just those elements that are not in the supplied row and column  
+					if (rows != p1 && cols != q1) {  
+						tem.setValue(i, j++, m_data[rows][cols]);
+		
+						// Because the row is complete, increase the row index as well as reset the cols index.  
+						if (j == num - 1) {  
+							j = 0;  
+							++i;  
+						}  
+					}  
+				}  
+			}  
+		}  
+		
+		/* A recursive function for determining the determinant of a matrix, where num is the current length of the matrix[][].*/
+		int determinantOfMatrix(const size_t matrixSize) {  
+			int num = matrixSize;
+			int determinant = 0;
+			if (num == 1) {
+				return m_data[0][0];
+			}
+
+			// for storing the co-factors  
+			Matrix<T> tem(matrixSize-1, matrixSize-1); // TODO need to deal with this asap.
+			int signs = 1;
+			for (int i = 0; i < num; ++i) { //iterating over each element
+				getCofactorMatrix(tem, 0, i, num);
+				determinant += signs * m_data[0][i] * tem.determinantOfMatrix(num - 1);
+				signs = -signs;
+			}  
+		
+			return determinant;
+		}
+		
+		Matrix<T>& mulMatrix(const Matrix<T>& mat2, Matrix<T>& resultingMatrix) const {
+			int row1 = m_height;
+			int col1 = m_height;
+			int row2 = mat2.getHeight();
+			int col2 = mat2[0].size();
+
+			if (col1 != row2) {
+				throw std::out_of_range("Invalid Input");
+			}
+
+			// Resize result matrix to fit the result dimensions
+			resultingMatrix = Matrix<T>(row1, col2);
+		
+			for (int i = 0; i < row1; i++) {
+				for (int j = 0; j < col2; j++) {
+					for (int k = 0; k < col1; k++) {
+						resultingMatrix.setValue(i, j, resultingMatrix[i][j] + (m_data[i][k] * mat2[k][j]));
+					}
+				}
+			}
+			return resultingMatrix;
+		}
+
+		void transpose() {
+			for (int i = 0; i < m_height; ++i ) {
+				for (int j = i+1; j < m_height; ++j) {
+					std::swap(m_data[i][j], m_data[j][i]);
+				}
+				
+			}
+		}
+
+		void print() {
+			if (m_data.empty()) {
+				return;
+			}
+
+			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
+				for (size_t wIdx = 0; wIdx <m_width ; ++wIdx) {
+					std::cout<< m_data[hIdx][wIdx] << " ";
+				}
+				std::cout<<"\n";
+			}
+		}
+	
+
 		void fillMatrix() {
 			if (m_height == m_width) {
 				srand(time(NULL));
@@ -152,90 +263,6 @@ class Matrix final {
 			}
 		}
 
-		Matrix<T> divide(const size_t i, const size_t j) {
-			if (i < m_height && j < m_width) {
-				Matrix<T> minor(m_height-1, m_width-1);
-				int row = 0, col = 0;
-				for (int hIdx = 0; hIdx < m_height; ++hIdx) {
-					if ( hIdx == i)
-						continue;
-					col = 0;
-					for (int wIdx = 0; wIdx < m_width; ++wIdx) {
-						if (wIdx == j)
-							continue;
-						minor.setValue(row, col++, m_data[hIdx][wIdx]);
-					}
-					++row;
-				}
-				return minor;
-			}
-			return *this;
-		}
-
-		// Function for finding the cofactor  
-		// matrix[p][q] in tem[][]. num is  
-		// the current values of matrix[][]  
-		void getCofactorMatrix(Matrix<T>& tem, int p1, int q1, int num) {  
-			int i = 0, j = 0;  
-			//Loop for iterating of the matrix  
-			for (int rows = 0; rows < num; ++rows) {
-				for (int cols = 0; cols < num; ++cols) {  
-					// Transferring into a temporary matrix   
-					// just those elements that are not in the supplied row and column  
-					if (rows != p1 && cols != q1) {  
-						tem.setValue(i, j++, m_data[rows][cols]);
-		
-						// Because the row is complete, increase the row index as well as reset the cols index.  
-						if (j == num - 1) {  
-							j = 0;  
-							++i;  
-						}  
-					}  
-				}  
-			}  
-		}  
-		
-		/* A recursive function for determining the determinant of a matrix, where num is the current length of the matrix[][].*/
-		int determinantOfMatrix(const size_t matrixSize) {  
-			int num = matrixSize;
-			int determinant = 0;
-			if (num == 1) {
-				return m_data[0][0];
-			}
-		
-			// for storing the co-factors  
-			Matrix<T> tem(4, 4); // TODO need to deal with this asap.
-			int signs = 1;
-			for (int i = 0; i < num; ++i) { //iterating over each element
-				getCofactorMatrix(tem, 0, i, num);
-				determinant += signs * m_data[0][i] * tem.determinantOfMatrix(num - 1);
-				signs = -signs;  
-			}  
-		
-			return determinant;
-		}   			
-
-		void transpose() {
-			for (int i = 0; i < m_height; ++i ) {
-				for (int j = i+1; j < m_height; ++j) {
-					std::swap(m_data[i][j], m_data[j][i]);
-				}
-				
-			}
-		}
-
-		void print() {
-			if (m_data.empty()) {
-				return;
-			}
-
-			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-				for (size_t wIdx = 0; wIdx <m_width ; ++wIdx) {
-					std::cout<< m_data[hIdx][wIdx] << " ";
-				}
-				std::cout<<"\n";
-			}
-		}
 	
 	private:
 		size_t m_width;
