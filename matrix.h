@@ -1,88 +1,43 @@
-#include<vector>
-#include<iostream>
-#include<exception>
-#include<random>
+#include <vector>
+#include <iostream>
+#include <exception>
+#include <random>
 #include <time.h>
 
- 
 template<typename T, typename = typename
 	 std::enable_if_t<std::is_integral<T>::value>>
 class Matrix final {
 	public:
-		Matrix() :  m_height{0}, m_width{0} {};
-		Matrix(const size_t height, const size_t width, const T val=0) 
+		Matrix() :  m_height{0}, m_width{0} = default;
+
+		Matrix(const std::size_t height, const size_t width, constexpr T val=0) 
 			: m_height{height}, m_width{width}, m_data(m_height) {
-			m_data.resize(m_height);
 			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-				m_data[hIdx] = std::vector<T>(m_width);
-			}
-
-			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-				for (size_t wIdx = 0; wIdx < m_width; ++wIdx) {
-					m_data[hIdx][wIdx] = val;
-				}
+				m_data[hIdx].resize(m_width, val);
 			}
 		}
 
-		//copy constructor
-		Matrix(const Matrix& matr)
-			: m_height{matr.getHeight()}, m_width{matr.getWidth()}, m_data{m_height} {
-			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-				m_data[hIdx] = std::vector<T>(m_width);
-				for (size_t wIdx = 0; wIdx <m_width ; ++wIdx) {
-					m_data[hIdx][wIdx] = matr[hIdx][wIdx];
-				}
-			}
-		}
+		Matrix(const Matrix& matr) : m_height{matr.getHeight()}, m_width{matr.getWidth()}, m_data{matr.m_data} {}
 
-		//move constructor
 		Matrix(Matrix&& matr) 
 			: m_width(std::move(matr.getWidth())),
 			  m_height(std::move(matr.getHeight())),
-			  m_data(m_height) {
-			
-			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-				m_data[hIdx] = matr[hIdx];
-			}
-		}
+			  m_data(std::move(matr.m_data)) {}
 		
-		//move assignment
-		Matrix& operator=(Matrix<T>&& matr) {  // revisit
-			if (&matr != this) {
-				m_width = matr.getWidth();
-				m_height = matr.getHeight();
-				m_data.resize(m_height);
-				for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-					m_data[hIdx] = std::move(matr[hIdx]);
-				}
-			}
+		
+		Matrix& operator=(Matrix<T>&& matr) {
+			m_width = std::move(matr.m_width);
+			m_height = std::move(matr.m_height);
+			m_data = std::move(matr.m_data);
 			return *this;
 		}
 
-		//copy assignment
 		Matrix& operator=(const Matrix& matr) {
-			if (&matr != this) {
-				if (m_height != matr.getHeight() || m_width != matr.getWidth()) {
-					m_width = matr.getWidth();
-					m_height = matr.getHeight();
-					m_data.resize(m_height);
-
-					for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-						m_data[hIdx] = new std::vector<T>[m_width];
-					}
-				}
-				
-				for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-					for (size_t wIdx = 0; wIdx < m_width ; ++wIdx) {
-						m_data[hIdx][wIdx] = matr[hIdx][wIdx];
-					}
-				}
-			}
+			m_width = matr.getWidth();
+			m_height = matr.getHeight();
+			m_data.assign(matr.m_data.begin(), matr.m_data.end());				
 			return *this;
 		}
-
-		//default destructor
-		~Matrix() = default;
 		
 		inline const size_t getWidth() const {
 			return m_width;
@@ -100,19 +55,14 @@ class Matrix final {
 			return m_data;
 		}
 		inline void setValue(const size_t height, const size_t width, const T val) {
-			if (height >= m_height || width >= m_width)
-				throw std::out_of_range("index is out of range");
-			m_data[height][width] = val;
+			m_data.at(height).at(width) = val;
 		}
 		inline T getValue(const size_t height, const size_t width) const {
 			return m_data[height][width];
 		}
-		T at(const size_t height, const size_t width) {
-			if (height >= m_height || width >= m_width) {
-				throw std::out_of_range("index is out of range");
-			}
 
-			return m_data[height][width];
+		T at(const size_t height, const size_t width) {
+			return m_data.at(height).at(width);
 		}
 		std::vector<T> operator[](const size_t rowIdx) const {
 			return m_data[rowIdx];
@@ -125,17 +75,22 @@ class Matrix final {
 			}
 		}
 		
-		Matrix<T> divide(const size_t i, const size_t j) {
+		Matrix<T> slice(const size_t i, const size_t j) {
 			if (i < m_height && j < m_width) {
 				Matrix<T> minor(m_height-1, m_width-1);
-				int row = 0, col = 0;
+				int row = 0, 
+				int col = 0;
 				for (int hIdx = 0; hIdx < m_height; ++hIdx) {
-					if ( hIdx == i)
+					if (hIdx == i)
+					{
 						continue;
+					}
 					col = 0;
 					for (int wIdx = 0; wIdx < m_width; ++wIdx) {
 						if (wIdx == j)
+						{
 							continue;
+						}
 						minor.setValue(row, col++, m_data[hIdx][wIdx]);
 					}
 					++row;
@@ -145,20 +100,13 @@ class Matrix final {
 			return *this;
 		}
 
-		// Function for finding the cofactor  
-		// matrix[p][q] in tem[][]. num is  
-		// the current values of matrix[][]  
 		void getCofactorMatrix(Matrix<T>& tem, const size_t p1, const size_t q1, const size_t num) {  
-			int i = 0, j = 0;  
-			//Loop for iterating of the matrix  
+			int i = 0, 
+			int j = 0;   
 			for (int rows = 0; rows < num; ++rows) {
-				for (int cols = 0; cols < num; ++cols) {  
-					// Transferring into a temporary matrix   
-					// just those elements that are not in the supplied row and column  
+				for (int cols = 0; cols < num; ++cols) {    
 					if (rows != p1 && cols != q1) {  
 						tem.setValue(i, j++, m_data[rows][cols]);
-		
-						// Because the row is complete, increase the row index as well as reset the cols index.  
 						if (j == num - 1) {  
 							j = 0;  
 							++i;  
@@ -168,7 +116,6 @@ class Matrix final {
 			}  
 		}  
 		
-		/* A recursive function for determining the determinant of a matrix, where num is the current length of the matrix[][].*/
 		int determinantOfMatrix(const size_t matrixSize) {  
 			int num = matrixSize;
 			int determinant = 0;
@@ -176,10 +123,9 @@ class Matrix final {
 				return m_data[0][0];
 			}
 
-			// for storing the co-factors  
-			Matrix<T> tem(matrixSize-1, matrixSize-1); // TODO need to deal with this asap.
+			Matrix<T> tem(matrixSize-1, matrixSize-1);
 			int signs = 1;
-			for (int i = 0; i < num; ++i) { //iterating over each element
+			for (int i = 0; i < num; ++i) {
 				getCofactorMatrix(tem, 0, i, num);
 				determinant += signs * m_data[0][i] * tem.determinantOfMatrix(num - 1);
 				signs = -signs;
@@ -188,23 +134,23 @@ class Matrix final {
 			return determinant;
 		}
 		
-		Matrix<T>& mulMatrix(const Matrix<T>& mat2, Matrix<T>& resultingMatrix) const {
-			int row1 = m_height;
-			int col1 = m_height;
-			int row2 = mat2.getHeight();
-			int col2 = mat2[0].size();
+		Matrix<T>& mulMatrix(const Matrix<T>& mat1, const Matrix<T>& mat2) const {
+			Matrix<T> res(mat1.m_width, mat2.m_height);
+
+			const int row1 = m_height;
+			const int col1 = m_width;
+			const int row2 = mat2.getHeight();
 
 			if (col1 != row2) {
 				throw std::out_of_range("Invalid Input");
 			}
 
-			// Resize result matrix to fit the result dimensions
-			resultingMatrix = Matrix<T>(row1, col2);
+			const int col2 = mat2[0].size();
 		
 			for (int i = 0; i < row1; i++) {
 				for (int j = 0; j < col2; j++) {
 					for (int k = 0; k < col1; k++) {
-						resultingMatrix.setValue(i, j, resultingMatrix[i][j] + (m_data[i][k] * mat2[k][j]));
+						res.setValue(i, j, resultingMatrix[i][j] + (m_data[i][k] * mat2[k][j]));
 					}
 				}
 			}
@@ -221,21 +167,17 @@ class Matrix final {
 		}
 
 		void print() {
-			if (m_data.empty()) {
-				return;
-			}
-
-			for (size_t hIdx = 0; hIdx < m_height; ++hIdx) {
-				for (size_t wIdx = 0; wIdx <m_width ; ++wIdx) {
-					std::cout<< m_data[hIdx][wIdx] << " ";
+			for (std::size_t hIdx = 0; hIdx < m_height; ++hIdx) {
+				for (size_t e_t wIdx = 0; wIdx < m_width; ++wIdx) {
+					std::cout << m_data[hIdx][wIdx] << " ";
 				}
-				std::cout<<"\n";
+				std::cout << std::endl;
 			}
 		}
-	
 
-		void fillMatrix() {
+		void fillMatrixWithRandomValues() {
 			if (m_height == m_width) {
+				std::mt19937 rng; //TODO google this
 				srand(time(NULL));
 				for (int i = 0 ; i < m_height; ++i) {
 					for (int j = 0; j < m_height; ++j) {
@@ -243,8 +185,8 @@ class Matrix final {
 					}
 				}
 				
-				//debugging
-				/*m_data[0][0] = 4;
+#ifdef DEBUG
+				m_data[0][0] = 4;
 				m_data[0][1] = 3;
 				m_data[0][2] = 2;
 				m_data[0][3] = 2;
@@ -259,10 +201,10 @@ class Matrix final {
 				m_data[3][0] = 0;
 				m_data[3][1] = 3;
 				m_data[3][2] = 1;
-				m_data[3][3] = 1;*/
+				m_data[3][3] = 1;
+#endif
 			}
 		}
-
 	
 	private:
 		size_t m_width;
