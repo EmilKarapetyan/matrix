@@ -13,14 +13,14 @@ template<typename T, typename = typename
 class Matrix final {
 	public:
 		Matrix() :  m_row{0}, m_col{0} {};
-		Matrix(const std::uint32_t row, const std::uint32_t col, const T val=0) 
+		Matrix(const std::size_t row, const std::size_t col, const T val=0) 
 			: m_row{row}, m_col{col}, m_data(m_row) {
 			for (std::size_t hIdx = 0; hIdx < m_row; ++hIdx) {
 				m_data[hIdx].resize(m_col, val);
 			}
 		}
 
-		Matrix(const std::uint32_t row, const std::uint32_t col,
+		Matrix(const std::size_t row, const std::size_t col,
 			   const std::initializer_list<std::initializer_list<T>>& initList)
 			   : m_row{row}, m_col{col} 
 		{
@@ -74,8 +74,8 @@ class Matrix final {
 				return false;
 			}
 
-			for (int hIdx = 0; hIdx < m_row; ++hIdx) {
-				for (int wIdx = 0; wIdx < m_col; ++wIdx) {
+			for (std::uint32_t hIdx = 0; hIdx < m_row; ++hIdx) {
+				for (std::uint32_t wIdx = 0; wIdx < m_col; ++wIdx) {
 					if (m_data[hIdx][wIdx] != matr[hIdx][wIdx])
 					{
 						return false;
@@ -240,30 +240,11 @@ class Matrix final {
 						m_data[i][j] = dist(gen);
 					}
 				}
-				
-#ifdef DEBUG
-				m_data[0][0] = 4;
-				m_data[0][1] = 3;
-				m_data[0][2] = 2;
-				m_data[0][3] = 2;
-				m_data[1][0] = 0;
-				m_data[1][1] = 1;
-				m_data[1][2] = -3;
-				m_data[1][3] = 3;
-				m_data[2][0] = 0;
-				m_data[2][1] = -1;
-				m_data[2][2] = 3;
-				m_data[2][3] = 3;
-				m_data[3][0] = 0;
-				m_data[3][1] = 3;
-				m_data[3][2] = 1;
-				m_data[3][3] = 1;
-#endif
 			}
 		}
 	
 	private:
-		size_t m_col;
-		size_t m_row;
+		std::size_t m_row;
+		std::size_t m_col;
 		std::vector<std::vector<T>> m_data;
 };
