@@ -1,0 +1,20 @@
+# Build directories
+build/
+
+# Compiled object files
+*.o
+*.obj
+
+# Executables
+*.exe
+
+# CMake-generated files
+CMakeCache.txt
+CMakeFiles/
+
+# IDE-specific files (adjust as needed)
+*.vscode/
+*.idea/
+
+# Other potentially unwanted files
+*~ 

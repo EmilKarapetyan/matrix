@@ -1,0 +1,4 @@
+Checks:          '*'  # Enable all checks except clang analyzer checks
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*'
+FormatStyle:     file  # Use .clang-format for style
