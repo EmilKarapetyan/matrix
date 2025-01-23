@@ -142,23 +142,119 @@ bool test_matrix_product()
 
 bool test_determinant_calculation()
 {
-	Matrix<int> matr1(8, 8,
-		{{1045, 2201, 3204, 1492, 4310, 2823, 5172, 9985},
-        {5732, 1938, 3014, 4102, 2111, 5074, 2357, 1753},
-        {1212, 2013, 4010, 5383, 3022, 4832, 5245, 6111},
-        {7310, 3820, 2276, 5992, 3404, 5599, 2035, 4927},
-        {5156, 4281, 7321, 1837, 6740, 5493, 1832, 4602},
-        {2842, 1021, 5067, 1049, 5317, 5273, 6130, 2536},
-        {1933, 7230, 3829, 2976, 1892, 3278, 6032, 4111},
-        {5194, 6723, 4555, 6148, 3960, 7282, 1549, 4389}});
+	std::int32_t matr1_det_golden = -21588;
+	Matrix<int> matr1(3, 3,
+		{{68, 46, 97},
+    	{88, 21, 35},
+    	{76, 9, 17}});
 
+	if (matr1_det_golden != matr1.determinant()) {
+		std::cout << "TEST FAILED: mtx determinant"<<std::endl;
+		return false;
+	}
+
+	std::int32_t matr2_det_golden = -5730641;
 	Matrix<int> matr2(4, 4,
 		{{71, 60, 42, 80},
-		{12, 90, 59, 12},
-		{19, 97, 63, 82},
-		{40, 27, 36, 9}});
-		
-	//std::cout<<"\nDeterminant of "<<matr2.get_determinant()<<std::endl;; //TODO Revisit
+        {12, 90, 59, 12},
+        {19, 97, 63, 82},
+        {40, 27, 36, 9}});
+
+	if (matr2_det_golden != matr2.determinant()) {
+		std::cout << "TEST FAILED: mtx determinant"<<std::endl;
+		return false;
+	}
+
+	std::int64_t matr3_det_golden = -45649600708;
+	Matrix<std::int64_t> matr3(6, 6,
+		{{56, 89, 32, 71, 64, 43},
+		{22, 57, 88, 13, 45, 90},
+		{3, 78, 19, 67, 39, 24},
+		{94, 26, 59, 51, 12, 82},
+		{81, 68, 73, 36, 85, 21},
+		{47, 15, 92, 50, 34, 77}});
+
+	if (matr3_det_golden != matr3.determinant()) {
+		std::cout << "TEST FAILED: mtx determinant"<<std::endl;
+		return false;
+	}
+	
+	std::cout << "TEST SUCCEED: mtx determinant"<<std::endl;
+	return true;
+}
+
+bool test_matrix_transpose()
+{
+	Matrix<std::int32_t> res;
+	Matrix<std::int32_t> matr1(4, 4,
+		{{11, 24, 35, 46},
+		{57, 68, 79, 80},
+		{91, 12, 23, 34},
+		{45, 56, 67, 78}});
+
+	Matrix<std::int32_t> matr1_golden_transpose(4, 4,
+		{{11, 57, 91, 45}, 
+		{24, 68, 12, 56}, 
+		{35, 79, 23, 67}, 
+		{46, 80, 34, 78}});
+
+	matr1.transpose();
+	if (matr1 != matr1_golden_transpose) 
+	{
+		std::cout << "TEST FAILED: mtx transpose"<<std::endl;
+		return false;
+	}
+
+	Matrix<std::int32_t> matr2(5, 5,
+		{{12, 45, 78, 34, 56},
+		{67, 89, 23, 12, 45},
+		{90, 34, 67, 89, 12},
+		{56, 78, 90, 23, 34},
+		{45, 12, 34, 56, 78}});
+
+	Matrix<std::int32_t> matr2_golden_transpose(5, 5,
+		{{12, 67, 90, 56, 45}, 
+		{45, 89, 34, 78, 12}, 
+		{78, 23, 67, 90, 34}, 
+		{34, 12, 89, 23, 56}, 
+		{56, 45, 12, 34, 78}});
+
+	matr2.transpose();
+
+	if (matr2 != matr2_golden_transpose) 
+	{
+		std::cout << "TEST FAILED: mtx transpose"<<std::endl;
+		return false;
+	}
+
+	Matrix<std::int32_t> matr3(8, 8,
+		{{12, 34, 56, 78, 90, 11, 22, 33},
+		{44, 55, 66, 77, 88, 99, 10, 20},
+		{21, 32, 43, 54, 65, 76, 87, 98},
+		{19, 28, 37, 46, 57, 68, 79, 80},
+		{81, 72, 63, 54, 45, 36, 27, 18},
+		{17, 26, 35, 44, 53, 62, 71, 82},
+		{83, 74, 65, 56, 47, 38, 29, 10},
+		{11, 22, 33, 44, 55, 66, 77, 88}});
+
+	Matrix<std::int32_t> matr3_golden_transpose(8, 8,
+		{{12, 44, 21, 19, 81, 17, 83, 11},
+		{34, 55, 32, 28, 72, 26, 74, 22},
+		{56, 66, 43, 37, 63, 35, 65, 33},
+		{78, 77, 54, 46, 54, 44, 56, 44},
+		{90, 88, 65, 57, 45, 53, 47, 55},
+		{11, 99, 76, 68, 36, 62, 38, 66},
+		{22, 10, 87, 79, 27, 71, 29, 77},
+		{33, 20, 98, 80, 18, 82, 10, 88}});
+
+	matr3.transpose();
+	if (matr3 != matr3_golden_transpose) 
+	{
+		std::cout << "TEST FAILED: mtx transpose"<<std::endl;
+		return false;
+	}
+	
+	std::cout << "TEST SUCCEED: mtx transpose"<<std::endl;
 	return true;
 }
 
@@ -167,13 +263,14 @@ bool test_functionality()
 	return  (test_copy_assignment_operator() &
 			test_move_assignment_operator() &
 			test_matrix_scalar_multiplication() &
-			test_matrix_product());
+			test_matrix_product() &
+			test_determinant_calculation() &
+			test_matrix_transpose());
 }
 
 int main() {
 
-	bool status = test_functionality();
-	if (status) 
+	if (test_functionality()) 
 	{
 		std::cout<<"####################"<<std::endl;
 		std::cout<<"ALL THE TEST PASSED! Ibrahim ջան"<<std::endl;
