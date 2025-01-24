@@ -116,6 +116,7 @@ jobs:
             }
             "
           fi
+        shell: bash
 
       # Step 7: Search for "ALL THE TEST PASSED" in result.txt (cross-platform)
       - name: Search for "ALL THE TEST PASSED"
@@ -139,4 +140,5 @@ jobs:
             }
             "
           fi
+        shell: bash
 
