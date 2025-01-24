@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest, ubuntu-latest]
 
     steps:
       # Step 1: Checkout the repository
@@ -96,7 +96,7 @@ jobs:
       - name: Run Tests and Dump Output
         run: |
           # For Linux
-          if [[ "${{ matrix.os }}" == 'Linux' ]]; then
+          if [ "${{ matrix.os }}" == 'Linux' ]; then
             if [ -f ./build/matrix_lib ]; then
               ./build/matrix_lib > result.txt
             else
@@ -104,7 +104,7 @@ jobs:
               exit 1
             fi
           # For Windows
-          elif [[ "${{ matrix.os }}" == 'Windows' ]]; then
+          elif [ "${{ matrix.os }}" == 'Windows' ]; then
             powershell.exe -Command "
             if (Test-Path .\\build\\matrix_lib.exe) {
               .\\build\\matrix_lib.exe | Out-File -FilePath result.txt
@@ -119,7 +119,7 @@ jobs:
       - name: Search for "ALL THE TEST PASSED"
         run: |
           # For Linux
-          if [[ "${{ matrix.os }}" == 'Linux' ]]; then
+          if [ "${{ matrix.os }}" == 'Linux' ]; then
             if grep -q "ALL THE TEST PASSED" result.txt; then
               echo "All tests passed."
             else
@@ -127,7 +127,7 @@ jobs:
               exit 1
             fi
           # For Windows
-          elif [[ "${{ matrix.os }}" == 'Windows' ]]; then
+          elif [ "${{ matrix.os }}" == 'Windows' ]; then
             powershell.exe -Command "
             if (Select-String -Path result.txt -Pattern 'ALL THE TEST PASSED') {
               Write-Host 'All tests passed.'
