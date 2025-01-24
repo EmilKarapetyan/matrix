@@ -14,10 +14,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up CMake
-        uses: lukka/setup-cmake@v1
-        with:
-          cmakeVersion: "3.25.0" # Use the required version
+steps:
+  - name: Install CMake
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y cmake
 
       - name: Configure
         run: cmake -S . -B build
