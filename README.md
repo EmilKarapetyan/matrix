@@ -1,6 +1,6 @@
 # Matrix Library
 
-This library provides a basic implementation of a Matrix class in C++ with functionalities such as creation, manipulation, and mathematical operations.
+This header only library provides a basic implementation of a Matrix class in C++ with functionalities such as creation, manipulation, and mathematical operations.
 
 ## Features
 
@@ -8,7 +8,6 @@ This library provides a basic implementation of a Matrix class in C++ with funct
     * Create a matrix with specified dimensions and an optional default value.
     * Create a matrix from an initializer list.
 * **Matrix Operations:**
-    * Matrix addition and subtraction (not implemented in the provided code snippet)
     * Matrix multiplication
     * Matrix transposition
 * **Other Functionalities:**
@@ -32,10 +31,8 @@ This library provides a basic implementation of a Matrix class in C++ with funct
    https://github.com/EmilKarapetyan/matrix.git
 
 2. **Build project**
-   mkdir build
-   cd build
-   cmake .. 
-   make
+   mkdir build && cd build && cmake .. && make
 
-3. **Execute**
-    ./matrix_lib
+
+3. **Execute and test functionality**
+   Execute ./matrix_lib
