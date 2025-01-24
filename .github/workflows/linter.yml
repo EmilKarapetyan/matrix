@@ -31,3 +31,18 @@ jobs:
       # Step 4: Configure the build
       - name: Configure with CMake
         run: cmake -S . -B build
+
+      # Step 5: Build the project
+      - name: Build with CMake
+        run: cmake --build build
+
+      # Step 6: Run tests (if tests exist)
+      - name: Run Tests
+        run: ctest --test-dir build
+
+      # Step 7: Upload build artifacts (optional)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: matrix-project-build
+          path: build/
