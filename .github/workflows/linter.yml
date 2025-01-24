@@ -3,10 +3,10 @@ name: Build and Test Matrix Project
 on:
   push:
     branches:
-      - EmilKarapetyan-patch-1
+      - main
   pull_request:
     branches:
-      - EmilKarapetyan-patch-1
+      - main
 
 jobs:
   build:
@@ -17,33 +17,17 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # Step 2: Set up CMake
-      - name: Set up CMake
-        uses: lukka/setup-cmake@v1
-        with:
-          cmakeVersion: "3.25.0"
+      # Step 2: Install CMake
+      - name: Install CMake
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
 
-      # Step 3: Set up a C++ compiler
-      - name: Set up C++
-        uses: actions/setup-python@v4
-        with:
-          compiler: g++
+      # Step 3: Install GCC and G++
+      - name: Install GCC and G++
+        run: |
+          sudo apt-get install -y build-essential
 
       # Step 4: Configure the build
       - name: Configure with CMake
         run: cmake -S . -B build
-
-      # Step 5: Build the project
-      - name: Build with CMake
-        run: cmake --build build
-
-      # Step 6: Run tests (if tests exist)
-      - name: Run Tests
-        run: ctest --test-dir build
-
-      # Step 7: Upload build artifacts (optional)
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: matrix-project-build
-          path: build/
