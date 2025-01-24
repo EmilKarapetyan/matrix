@@ -92,7 +92,7 @@ jobs:
         run: |
           cmake --build build
 
-       # Step 6: Run tests and dump output to a result file
+      # Step 6: Run tests and dump output to a result file
       - name: Run Tests and Dump Output
         run: |
           if [[ "${{ matrix.os }}" == 'Linux' ]]; then
@@ -133,4 +133,5 @@ jobs:
             }
             "
           fi
+
 
