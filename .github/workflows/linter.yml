@@ -3,10 +3,10 @@ name: Build and Test Matrix Project
 on:
   push:
     branches:
-      - main
+      - EmilKarapetyan-patch-1
   pull_request:
     branches:
-      - main
+      - EmilKarapetyan-patch-1
 
 jobs:
   build:
