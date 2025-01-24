@@ -94,12 +94,6 @@ jobs:
         run: |
           cmake --build build
 
-      # Debugging Step: List the contents of the build directory
-      - name: List build directory on Windows
-        if: runner.os == 'Windows'
-        run: |
-          dir .\build
-
       # Step 6: Run tests and dump output to result.txt on Windows
       - name: Run Tests and Dump Output on Windows
         if: runner.os == 'Windows'
