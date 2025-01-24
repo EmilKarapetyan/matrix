@@ -29,7 +29,9 @@ jobs:
       run: |
         make -j 
 
-    - name: Run tests 
-      # Replace with your actual test command 
-      run: |
-        ctest -V 
+    - name: Cache build artifacts (optional)
+      uses: actions/cache@v3
+      with:
+        path: |
+          ./build 
+        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }} 
