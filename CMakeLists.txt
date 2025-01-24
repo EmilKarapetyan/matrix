@@ -12,11 +12,9 @@ set(SOURCE_FILES
 add_executable(matrix_lib ${SOURCE_FILES})
 
 find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy REQUIRED)
-# Add a CMake target for clang-tidy
 find_program(CLANG_TIDY "clang-tidy")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug )
-   # set(CMAKE_CXX_CLANG_TIDY "clang-tidy;-checks=-*,bugprone-* ")
     add_custom_target(clang-tidy-check ALL
     COMMAND ${CLANG_TIDY_EXECUTABLE} -checks=-*,modernize-use-override,-warnings-as-errors -fix -format-style=file 
             -p ${CMAKE_BINARY_DIR}/compile_commands.json

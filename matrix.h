@@ -221,7 +221,6 @@ class Matrix final {
 		void print()
 		{
 			for (std::size_t rIdx = 0; rIdx < m_row; ++rIdx) {
-				#pragma unroll
 				for (std::size_t cIdx = 0; cIdx < m_col; ++cIdx) {
 					std::cout << m_data[rIdx][cIdx] << " ";
 				}
@@ -243,7 +242,6 @@ class Matrix final {
 				return;
 			}
 			for (std::size_t i = 0; i < rows; ++i) {
-				#pragma unroll
 				for (std::size_t j = 0; j < cols; ++j) {
 					m_data[i][j] = dist(gen);
 				}
