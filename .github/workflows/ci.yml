@@ -103,12 +103,14 @@ jobs:
               exit 1
             fi
           elif [[ ${{ matrix.os }} == 'Windows' ]]; then
-            if (Test-Path .\build\matrix_lib.exe) {
-              .\build\matrix_lib.exe | Out-File -FilePath result.txt
+            powershell.exe -Command "
+            if (Test-Path .\\build\\matrix_lib.exe) {
+              .\\build\\matrix_lib.exe | Out-File -FilePath result.txt
             } else {
-              Write-Host "Executable not found. Please check the build."
+              Write-Host 'Executable not found. Please check the build.'
               exit 1
-            fi
+            }
+            "
           fi
 
       # Step 7: Search for "ALL THE TEST PASSED" in result.txt
@@ -122,10 +124,12 @@ jobs:
               exit 1
             fi
           elif [[ ${{ matrix.os }} == 'Windows' ]]; then
-            if (Select-String -Path result.txt -Pattern "ALL THE TEST PASSED") {
-              Write-Host "All tests passed."
+            powershell.exe -Command "
+            if (Select-String -Path result.txt -Pattern 'ALL THE TEST PASSED') {
+              Write-Host 'All tests passed.'
             } else {
-              Write-Host "Tests failed. Check the output."
+              Write-Host 'Tests failed. Check the output.'
               exit 1
-            fi
+            }
+            "
           fi
