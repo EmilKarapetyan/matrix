@@ -95,14 +95,14 @@ jobs:
       # Step 6: Run tests and dump output to a result file
       - name: Run Tests and Dump Output
         run: |
-          if [[ "${{ matrix.os }}" == 'Linux' ]]; then
+          if [[ "${{ matrix.os }}" == 'ubuntu-latest' ]]; then
             if [ -f ./build/matrix_lib ]; then
               ./build/matrix_lib > result.txt
             else
               echo "Executable not found. Please check the build."
               exit 1
             fi
-          elif [[ "${{ matrix.os }}" == 'Windows' ]]; then
+          elif [[ "${{ matrix.os }}" == 'windows-latest' ]]; then
             powershell.exe -Command "
             if (Test-Path .\\build\\matrix_lib.exe) {
               .\\build\\matrix_lib.exe | Out-File -FilePath result.txt
@@ -116,14 +116,14 @@ jobs:
       # Step 7: Search for "ALL THE TEST PASSED" in result.txt
       - name: Search for "ALL THE TEST PASSED"
         run: |
-          if [[ "${{ matrix.os }}" == 'Linux' ]]; then
+          if [[ "${{ matrix.os }}" == 'ubuntu-latest' ]]; then
             if grep -q "ALL THE TEST PASSED" result.txt; then
               echo "All tests passed."
             else
               echo "Tests failed. Check the output."
               exit 1
             fi
-          elif [[ "${{ matrix.os }}" == 'Windows' ]]; then
+          elif [[ "${{ matrix.os }}" == 'windows-latest' ]]; then
             powershell.exe -Command "
             if (Select-String -Path result.txt -Pattern 'ALL THE TEST PASSED') {
               Write-Host 'All tests passed.'
