@@ -1,0 +1,70 @@
+name: CI Build and Test Matrix Project
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      # Step 2: Install dependencies (CMake, GCC, G++, Visual Studio for Windows)
+      - name: Install dependencies
+        run: |
+          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+            sudo apt-get update
+            sudo apt-get install -y cmake build-essential
+            cmake --version
+            gcc --version
+            g++ --version
+          else
+            choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+            cmake --version
+          fi
+
+      # Step 3: Configure the build
+      - name: Configure with CMake
+        run: |
+          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+            cmake -S . -B build
+          else
+            cmake -S . -B build -G "Visual Studio 16 2019"
+          fi
+
+      # Step 4: Build the project
+      - name: Build with CMake
+        run: |
+          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+            cmake --build build
+          else
+            cmake --build build --config Release
+          fi
+
+      # Step 5: Run tests (if they exist)
+     # - name: Run Tests
+     #   run: |
+     #     if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+     #       ctest --test-dir build
+     #     else
+     #       ctest --test-dir build --config Release
+     #     fi
+
+      # Step 6: Run the program (ensure correct path to binary)
+      - name: Run Program
+        run: |
+          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+            ./build/matrix_lib
+          else
+            .\build\Release\matrix_lib.exe
+          fi
