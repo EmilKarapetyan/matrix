@@ -1,43 +1,49 @@
-name: Build and Test C++ Project
+name: Build and Test Matrix Project
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-    - name: Set up CMake
+      # Step 2: Set up CMake
+      - name: Set up CMake
         uses: lukka/setup-cmake@v1
         with:
-          cmakeVersion: "3.25.0" # Use the required version
+          cmakeVersion: "3.25.0"
 
-      - name: Configure
+      # Step 3: Set up a C++ compiler
+      - name: Set up C++
+        uses: actions/setup-python@v4
+        with:
+          compiler: g++
+
+      # Step 4: Configure the build
+      - name: Configure with CMake
         run: cmake -S . -B build
 
-      - name: Build
+      # Step 5: Build the project
+      - name: Build with CMake
         run: cmake --build build
 
-    - name: Configure with CMake
-      run: |
-        mkdir build
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
+      # Step 6: Run tests (if tests exist)
+      - name: Run Tests
+        run: ctest --test-dir build
 
-    - name: Build the project
-      run: |
-        make -j 
-
-    - name: Cache build artifacts (optional)
-      uses: actions/cache@v3
-      with:
-        path: |
-          ./build 
-        key: ${{ runner.os }}-build-${{ hashFiles('**/CMakeLists.txt') }} 
+      # Step 7: Upload build artifacts (optional)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: matrix-project-build
+          path: build/
