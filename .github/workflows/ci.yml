@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
       # Step 1: Checkout the repository
@@ -26,21 +26,21 @@ jobs:
           if ! command -v cmake &> /dev/null; then
             echo "CMake not found. Installing..."
             sudo apt-get install -y cmake
-          else
+          else:
             cmake --version
           fi
 
           if ! command -v gcc &> /dev/null; then
             echo "GCC not found. Installing..."
             sudo apt-get install -y build-essential
-          else
+          else:
             gcc --version
           fi
 
           if ! command -v g++ &> /dev/null; then
             echo "G++ not found. Installing..."
             sudo apt-get install -y build-essential
-          else
+          else:
             g++ --version
           fi
 
@@ -49,6 +49,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
+          # Install CMake if not installed
           if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
             Write-Host "CMake not found. Installing via Chocolatey..."
             choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
@@ -56,6 +57,7 @@ jobs:
             cmake --version
           }
 
+          # Install MinGW if GCC and G++ are missing
           if (-not (Get-Command gcc -ErrorAction SilentlyContinue)) {
             Write-Host "GCC not found. Installing MinGW..."
             choco install mingw
@@ -92,11 +94,11 @@ jobs:
         run: |
           cmake --build build
 
-      # Step 6: Run tests and dump output to a result file
+      # Step 6: Run tests and dump output to result.txt (cross-platform)
       - name: Run Tests and Dump Output
         run: |
           # For Linux
-          if ( "${{ matrix.os }}" == 'Linux' )
+          if [[ "$RUNNER_OS" == 'Linux' ]]; then
             if [ -f ./build/matrix_lib ]; then
               ./build/matrix_lib > result.txt
             else
@@ -104,7 +106,7 @@ jobs:
               exit 1
             fi
           # For Windows
-          elif ("${{ matrix.os }}" == 'Windows')
+          elif [[ "$RUNNER_OS" == 'Windows' ]]; then
             powershell.exe -Command "
             if (Test-Path .\\build\\matrix_lib.exe) {
               .\\build\\matrix_lib.exe | Out-File -FilePath result.txt
@@ -115,11 +117,11 @@ jobs:
             "
           fi
 
-      # Step 7: Search for "ALL THE TEST PASSED" in result.txt
+      # Step 7: Search for "ALL THE TEST PASSED" in result.txt (cross-platform)
       - name: Search for "ALL THE TEST PASSED"
         run: |
           # For Linux
-          if ( "${{ matrix.os }}" == 'Linux' )
+          if [[ "$RUNNER_OS" == 'Linux' ]]; then
             if grep -q "ALL THE TEST PASSED" result.txt; then
               echo "All tests passed."
             else
@@ -127,7 +129,7 @@ jobs:
               exit 1
             fi
           # For Windows
-          elif ( "${{ matrix.os }}" == 'Windows' )
+          elif [[ "$RUNNER_OS" == 'Windows' ]]; then
             powershell.exe -Command "
             if (Select-String -Path result.txt -Pattern 'ALL THE TEST PASSED') {
               Write-Host 'All tests passed.'
@@ -137,5 +139,4 @@ jobs:
             }
             "
           fi
-
 
