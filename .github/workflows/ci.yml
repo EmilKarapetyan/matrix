@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -19,52 +18,107 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # Step 2: Install dependencies (CMake, GCC, G++, Visual Studio for Windows)
-      - name: Install dependencies
+      # Step 2: Install dependencies on Ubuntu
+      - name: Install dependencies on Ubuntu
+        if: runner.os == 'Linux'
         run: |
-          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
-            sudo apt-get update
-            sudo apt-get install -y cmake build-essential
+          sudo apt-get update
+          if ! command -v cmake &> /dev/null; then
+            echo "CMake not found. Installing..."
+            sudo apt-get install -y cmake
+          else:
             cmake --version
+          fi
+
+          if ! command -v gcc &> /dev/null; then
+            echo "GCC not found. Installing..."
+            sudo apt-get install -y build-essential
+          else:
             gcc --version
+          fi
+
+          if ! command -v g++ &> /dev/null; then
+            echo "G++ not found. Installing..."
+            sudo apt-get install -y build-essential
+          else:
             g++ --version
-          else
+          fi
+
+      # Step 3: Install dependencies on Windows
+      - name: Install dependencies on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Install CMake if not installed
+          if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
+            Write-Host "CMake not found. Installing via Chocolatey..."
             choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+          } else {
             cmake --version
-          fi
+          }
 
-      # Step 3: Configure the build
-      - name: Configure with CMake
+          # Install MinGW if GCC and G++ are missing
+          if (-not (Get-Command gcc -ErrorAction SilentlyContinue)) {
+            Write-Host "GCC not found. Installing MinGW..."
+            choco install mingw
+          } else {
+            gcc --version
+          }
+
+          if (-not (Get-Command g++ -ErrorAction SilentlyContinue)) {
+            Write-Host "G++ not found. Installing MinGW..."
+            choco install mingw
+          } else {
+            g++ --version
+          }
+
+      # Step 4: Configure the build with CMake
+      - name: Configure with CMake on Linux
+        if: runner.os == 'Linux'
         run: |
-          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
-            cmake -S . -B build
-          else
-            cmake -S . -B build -G "Visual Studio 16 2019"
-          fi
+          cmake -S . -B build
 
-      # Step 4: Build the project
-      - name: Build with CMake
+      - name: Configure with CMake on Windows
+        if: runner.os == 'Windows'
         run: |
-          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
-            cmake --build build
-          else
-            cmake --build build --config Release
-          fi
+          cmake -S . -B build -G "MinGW Makefiles"
 
-      # Step 5: Run tests (if they exist)
-     # - name: Run Tests
-     #   run: |
-     #     if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
-     #       ctest --test-dir build
-     #     else
-     #       ctest --test-dir build --config Release
-     #     fi
-
-      # Step 6: Run the program (ensure correct path to binary)
-      - name: Run Program
+      # Step 5: Build the project
+      - name: Build with CMake on Linux
+        if: runner.os == 'Linux'
         run: |
-          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
-            ./build/matrix_lib
-          else
-            .\build\Release\matrix_lib.exe
-          fi
+          cmake --build build
+
+      - name: Build with CMake on Windows
+        if: runner.os == 'Windows'
+        run: |
+          cmake --build build
+
+      # Debugging Step: List the contents of the build directory
+      - name: List build directory on Windows
+        if: runner.os == 'Windows'
+        run: |
+          dir .\build
+
+      # Step 6: Run tests and dump output to result.txt on Windows
+      - name: Run Tests and Dump Output on Windows
+        if: runner.os == 'Windows'
+        run: |
+          # Check if executable exists
+          if (Test-Path .\build\matrix_lib.exe) {
+            .\build\matrix_lib.exe | Out-File -FilePath result.txt
+          } else {
+            Write-Host "Executable not found. Please check the build."
+            exit 1
+          }
+
+      # Step 7: Search for "ALL THE TEST PASSED" in result.txt
+      - name: Search for "ALL THE TEST PASSED" on Windows
+        if: runner.os == 'Windows'
+        run: |
+          if (Select-String -Path result.txt -Pattern "ALL THE TEST PASSED") {
+            Write-Host "All tests passed."
+          } else {
+            Write-Host "Tests failed. Check the output."
+            exit 1
+          }
