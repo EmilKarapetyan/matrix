@@ -92,7 +92,7 @@ jobs:
         run: |
           cmake --build build
 
-     # Step 6: Run tests and dump output to a result file
+ # Step 6: Run tests and dump output to a result file
       - name: Run Tests and Dump Output
         run: |
           if [[ ${{ matrix.os }} == 'Linux' ]]; then
@@ -104,7 +104,7 @@ jobs:
             fi
           elif [[ ${{ matrix.os }} == 'Windows' ]]; then
             powershell.exe -Command "
-            if ((Test-Path .\\build\\matrix_lib.exe) -eq $true) {
+            if (Test-Path .\\build\\matrix_lib.exe) {
               .\\build\\matrix_lib.exe | Out-File -FilePath result.txt
             } else {
               Write-Host 'Executable not found. Please check the build.'
