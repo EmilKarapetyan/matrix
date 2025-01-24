@@ -1,0 +1,42 @@
+name: Delete Temporary Branches
+
+on:
+  push:
+    branches:
+      - main
+    # Trigger only when changes are merged into the main branch
+
+jobs:
+  delete-branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Git user for deleting branches
+      - name: Set up Git user
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Step 3: Fetch all remote branches
+      - name: Fetch all branches
+        run: |
+          git fetch --prune --unshallow
+
+      # Step 4: List merged branches (except main)
+      - name: List merged branches
+        run: |
+          branches=$(git branch -r --merged origin/main | grep -v '\->' | grep -v 'origin/main')
+          echo "Merged branches: $branches"
+
+      # Step 5: Delete the merged branches
+      - name: Delete merged branches
+        run: |
+          branches=$(git branch -r --merged origin/main | grep -v '\->' | grep -v 'origin/main' | sed 's/origin\///')
+          for branch in $branches; do
+            echo "Deleting branch: $branch"
+            git push origin --delete $branch
+          done
