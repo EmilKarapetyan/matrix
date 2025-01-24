@@ -26,22 +26,16 @@ jobs:
           if ! command -v cmake &> /dev/null; then
             echo "CMake not found. Installing..."
             sudo apt-get install -y cmake
-          else
-            cmake --version
           fi
 
           if ! command -v gcc &> /dev/null; then
             echo "GCC not found. Installing..."
             sudo apt-get install -y build-essential
-          else
-            gcc --version
           fi
 
           if ! command -v g++ &> /dev/null; then
             echo "G++ not found. Installing..."
             sudo apt-get install -y build-essential
-          else
-            g++ --version
           fi
 
       # Step 3: Install dependencies on Windows
@@ -52,22 +46,16 @@ jobs:
           if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
             Write-Host "CMake not found. Installing via Chocolatey..."
             choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
-          } else {
-            cmake --version
           }
 
           if (-not (Get-Command gcc -ErrorAction SilentlyContinue)) {
             Write-Host "GCC not found. Installing MinGW..."
             choco install mingw
-          } else {
-            gcc --version
           }
 
           if (-not (Get-Command g++ -ErrorAction SilentlyContinue)) {
             Write-Host "G++ not found. Installing MinGW..."
             choco install mingw
-          } else {
-            g++ --version
           }
 
       # Step 4: Configure the build with CMake
@@ -92,46 +80,40 @@ jobs:
         run: |
           cmake --build build
 
-      # Step 6: Run tests and dump output to result.txt on Linux
-      - name: Run Tests and Dump Output on Linux
-        if: runner.os == 'Linux'
+      # Step 6: Run tests and dump output to result.txt
+      - name: Run Tests and Dump Output
         run: |
-          if [ -f ./build/matrix_lib ]; then
-            ./build/matrix_lib > result.txt
-          else
-            echo "Executable not found. Please check the build."
-            exit 1
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            if [ -f ./build/matrix_lib ]; then
+              ./build/matrix_lib > result.txt
+            else
+              echo "Executable not found. Please check the build."
+              exit 1
+            fi
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            if (Test-Path .\build\matrix_lib.exe) {
+              .\build\matrix_lib.exe | Out-File -FilePath result.txt
+            } else {
+              Write-Host "Executable not found. Please check the build."
+              exit 1
+            fi
           fi
 
-      # Step 6: Run tests and dump output to result.txt on Windows
-      - name: Run Tests and Dump Output on Windows
-        if: runner.os == 'Windows'
+      # Step 7: Search for "ALL THE TEST PASSED"
+      - name: Validate Test Results
         run: |
-          if (Test-Path .\build\matrix_lib.exe) {
-            .\build\matrix_lib.exe | Out-File -FilePath result.txt
-          } else {
-            Write-Host "Executable not found. Please check the build."
-            exit 1
-          }
-
-      # Step 7: Search for "ALL THE TEST PASSED" in result.txt on Linux
-      - name: Search for "ALL THE TEST PASSED" on Linux
-        if: runner.os == 'Linux'
-        run: |
-          if grep -q "ALL THE TEST PASSED" result.txt; then
-            echo "All tests passed."
-          else
-            echo "Tests failed. Check the output."
-            exit 1
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            if grep -q "ALL THE TEST PASSED" result.txt; then
+              echo "All tests passed."
+            else
+              echo "Tests failed. Check the output."
+              exit 1
+            fi
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            if (Select-String -Path result.txt -Pattern "ALL THE TEST PASSED") {
+              Write-Host "All tests passed."
+            } else {
+              Write-Host "Tests failed. Check the output."
+              exit 1
+            fi
           fi
-
-      # Step 7: Search for "ALL THE TEST PASSED" in result.txt on Windows
-      - name: Search for "ALL THE TEST PASSED" on Windows
-        if: runner.os == 'Windows'
-        run: |
-          if (Select-String -Path result.txt -Pattern "ALL THE TEST PASSED") {
-            Write-Host "All tests passed."
-          } else {
-            Write-Host "Tests failed. Check the output."
-            exit 1
-          }
