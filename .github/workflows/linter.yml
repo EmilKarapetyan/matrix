@@ -40,9 +40,17 @@ jobs:
       - name: Run Tests
         run: ctest --test-dir build
 
-      # Step 7: Upload build artifacts (optional)
+      # Step 7: Run the program
+      - name: Run Program
+        run: ./build/matrix_lib
+
+      # Step 8: Upload build artifacts (optional)
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: matrix-project-build
           path: build/
+
+
+
+
