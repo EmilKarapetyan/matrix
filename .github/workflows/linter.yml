@@ -18,14 +18,36 @@ jobs:
         uses: actions/checkout@v3
 
       # Step 2: Verify CMake installation
-      - name: Verify CMake
-        run: cmake --version
-
-      # Step 3: Install GCC and G++
-      - name: Install GCC and G++
+     
+      # Step 2: Verify and Install CMake if not installed
+      - name: Verify and Install CMake
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential
+          if ! command -v cmake &> /dev/null; then
+            echo "CMake not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y cmake
+          else
+            cmake --version
+          fi
+
+      # Step 3: Verify and Install GCC and G++ if not installed
+      - name: Verify and Install GCC and G++
+        run: |
+          if ! command -v gcc &> /dev/null; then
+            echo "GCC not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y build-essential
+          else
+            gcc --version
+          fi
+          if ! command -v g++ &> /dev/null; then
+            echo "G++ not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y build-essential
+          else
+            g++ --version
+          fi
+
 
       # Step 4: Configure the build
       - name: Configure with CMake
