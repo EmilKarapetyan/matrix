@@ -1,39 +1,65 @@
 name: CI
+name: Build and Test Matrix Project
 
 on:
   push:
-    branches: [ "main" ] # Trigger the workflow on pushes to the "main" branch
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-    - name: Set up Build environment
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential cmake
+      # Step 2: Verify CMake installation
+     
+      # Step 2: Verify and Install CMake if not installed
+      - name: Verify and Install CMake
+        run: |
+          if ! command -v cmake &> /dev/null; then
+            echo "CMake not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y cmake
+          else
+            cmake --version
+          fi
 
-    - name: Configure CMake
-      run: |
-        mkdir build
-        cd build
-        cmake ..
+      # Step 3: Verify and Install GCC and G++ if not installed
+      - name: Verify and Install GCC and G++
+        run: |
+          if ! command -v gcc &> /dev/null; then
+            echo "GCC not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y build-essential
+          else
+            gcc --version
+          fi
+          if ! command -v g++ &> /dev/null; then
+            echo "G++ not found. Installing..."
+            sudo apt-get update
+            sudo apt-get install -y build-essential
+          else
+            g++ --version
+          fi
 
-    - name: Build project
-      run: |
-        make
 
-    - name: Run tests 
-      # Add steps to run your unit tests here (if applicable)
-      # Example:
-      # run: |
-      #   ctest -V 
+      # Step 4: Configure the build
+      - name: Configure with CMake
+        run: cmake -S . -B build
 
-    - name: Run the program
-      run: |
-        ./my_matrix_library 
+      # Step 5: Build the project
+      - name: Build with CMake
+        run: cmake --build build
+
+      # Step 6: Run tests (if tests exist)
+      #- name: Run Tests
+      #  run: ctest --test-dir build
+
+      # Step 7: Run the program
+      - name: Run Program
+        run: ./build/matrix_lib
