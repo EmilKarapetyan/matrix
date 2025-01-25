@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/matrix_lib.dir/src/main.cpp.o -o matrix_lib 

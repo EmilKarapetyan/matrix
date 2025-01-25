@@ -1,0 +1,6 @@
+/mnt/c/Users/Asus/Desktop/projects/matrix/build/CMakeFiles/format.dir
+/mnt/c/Users/Asus/Desktop/projects/matrix/build/CMakeFiles/matrix_lib.dir
+/mnt/c/Users/Asus/Desktop/projects/matrix/build/CMakeFiles/clang-tidy-check.dir
+/mnt/c/Users/Asus/Desktop/projects/matrix/build/CMakeFiles/clang-format-check.dir
+/mnt/c/Users/Asus/Desktop/projects/matrix/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/Asus/Desktop/projects/matrix/build/CMakeFiles/rebuild_cache.dir
