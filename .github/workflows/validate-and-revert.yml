@@ -18,6 +18,8 @@ jobs:
       # Step 1: Checkout the repository
       - name: Checkout source code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Fetch full history to allow reverts
 
       # Step 2: Install dependencies on Ubuntu
       - name: Install dependencies on Ubuntu
@@ -44,17 +46,13 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          # Install CMake
           if (-not (Get-Command cmake -ErrorAction SilentlyContinue)) {
-            Write-Host "CMake not found. Installing via Chocolatey..."
             choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
           } else {
             cmake --version
           }
 
-          # Install MinGW (GCC/G++)
           if (-not (Get-Command gcc -ErrorAction SilentlyContinue)) {
-            Write-Host "GCC not found. Installing MinGW..."
             choco install mingw -y
           } else {
             gcc --version
@@ -76,7 +74,7 @@ jobs:
         run: cmake --build build
         shell: bash
 
-      # Step 6: Run tests and dump output to result.txt
+      # Step 6: Run tests and capture output
       - name: Run Tests and Capture Output
         run: |
           if [[ "$RUNNER_OS" == 'Linux' ]]; then
@@ -86,7 +84,7 @@ jobs:
           fi
         shell: bash
 
-      # Step 7: Check test results for "ALL THE TEST PASSED"
+      # Step 7: Verify test results
       - name: Verify Test Results
         run: |
           if [[ "$RUNNER_OS" == 'Linux' ]]; then
@@ -114,6 +112,7 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
+          git reset --hard HEAD # Reset working directory to match the last commit
           LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
           if [[ "$LAST_COMMIT_MSG" != *"Revert"* ]]; then
             git revert HEAD --no-edit
@@ -122,8 +121,3 @@ jobs:
             echo "Revert skipped to prevent infinite loop."
           fi
         shell: bash
-
-      # Step 9: Final message for PR
-      - name: Tests Passed Successfully
-        if: success() && github.event_name == 'pull_request'
-        run: echo "Tests passed successfully. Ready to merge into main."
