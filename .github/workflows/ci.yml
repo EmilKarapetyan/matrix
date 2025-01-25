@@ -118,50 +118,29 @@ jobs:
           fi
         shell: bash
 
-      # Step 7: Verify test results and Revert on Failure
-      - name: Verify Test Results and Revert on Failure
+      # Step 7: Search for "ALL THE TEST PASSED" in result.txt (cross-platform)
+      - name: Search for "ALL THE TEST PASSED"
         run: |
+          # For Linux
           if [[ "$RUNNER_OS" == 'Linux' ]]; then
             if grep -q "ALL THE TEST PASSED" result.txt; then
               echo "All tests passed."
             else
-              echo "Tests failed."
-              git config --global user.name "GitHub Actions Bot"
-              git config --global user.email "actions@github.com"
-              git reset --hard HEAD # Reset working directory to match the last commit
-              LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
-              if [[ "$LAST_COMMIT_MSG" != *"Revert"* ]]; then
-                git revert HEAD --no-edit
-                git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-                git push origin main
-              else
-                echo "Revert skipped to prevent infinite loop."
-              fi
+              echo "Tests failed. Check the output."
               exit 1
             fi
+          # For Windows
           elif [[ "$RUNNER_OS" == 'Windows' ]]; then
             powershell.exe -Command "
-            if (-not (Select-String -Path result.txt -Pattern 'ALL THE TEST PASSED')) {
-              Write-Host 'Tests failed.'
-              git config --global user.name 'GitHub Actions Bot'
-              git config --global user.email 'actions@github.com'
-              git reset --hard HEAD
-              \$LAST_COMMIT_MSG = git log -1 --pretty=%B
-              if (\$LAST_COMMIT_MSG -notlike '*Revert*') {
-                git revert HEAD --no-edit
-                git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
-                git push origin main
-              } else {
-                Write-Host 'Revert skipped to prevent infinite loop.'
-              }
-              exit 1
-            } else {
+            if (Select-String -Path result.txt -Pattern 'ALL THE TEST PASSED') {
               Write-Host 'All tests passed.'
+            } else {
+              Write-Host 'Tests failed. Check the output.'
+              exit 1
             }
             "
           fi
         shell: bash
-
 
       # Step 8: Final message for PR (if this is a pull request)
       - name: Tests Passed Successfully
