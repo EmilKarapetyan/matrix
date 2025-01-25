@@ -26,7 +26,7 @@ jobs:
           if ! command -v cmake &> /dev/null; then
             echo "CMake not found. Installing..."
             sudo apt-get install -y cmake
-          else
+          else:
             cmake --version
           fi
 
@@ -167,7 +167,7 @@ jobs:
             git revert --no-commit HEAD
 
             # Commit the reverted changes (only the affected files)
-            git commit -m 'Revert last commit\'s changes (only the affected files)'
+            git commit -m 'Revert last commit''s changes (only the affected files)'
 
             # Push the changes back to the 'copy_2' branch
             git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
