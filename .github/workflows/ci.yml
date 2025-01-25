@@ -2,9 +2,9 @@ name: CI Build and Test Matrix Project
 
 on:
   push:
-    branches: ["main"]
+    branches: ["copy_2"]
   pull_request:
-    branches: ["main"]
+    branches: ["copy_2"]
 
 jobs:
   build:
