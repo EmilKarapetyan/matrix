@@ -257,6 +257,7 @@ bool test_matrix_transpose()
          {22, 10, 87, 79, 27, 71, 29, 77},
          {33, 20, 98, 80, 18, 82, 10, 88}});
 
+    
         Matrix<std::int32_t> matr333_golden_transpose(
         8, 8,
         {{12, 44, 21, 19, 81, 17, 83, 11},
