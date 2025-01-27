@@ -27,10 +27,14 @@ jobs:
               echo "Doxygen is already installed"
             fi
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            # Add the default Chocolatey source to make sure it's available
+            choco source add -n=chocolatey -s=https://community.chocolatey.org/api/v2/
+
             # Check if Doxygen is already installed on Windows
             if ! command -v doxygen &> /dev/null; then
               echo "Doxygen not found, installing..."
-              choco install doxygen -y --source https://community.chocolatey.org/api/v2/
+              # Ensure the correct package is installed, or use --pre if it's a prerelease
+              choco install doxygen --yes --source https://community.chocolatey.org/api/v2/
             else
               echo "Doxygen is already installed"
             fi
