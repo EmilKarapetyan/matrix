@@ -25,9 +25,9 @@ jobs:
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
             # Install Doxygen manually on Windows using PowerShell
             echo "Installing Doxygen manually on Windows..."
-
+            
             pwsh -Command "
-              # Correct assignment in PowerShell
+              # Define URL and output file name
               \$url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
               \$output = 'doxygen-setup.exe'
 
