@@ -18,20 +18,15 @@ jobs:
       - name: Set up Doxygen and Graphviz
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            # Check if Doxygen is already installed on Ubuntu
-            if ! command -v doxygen &> /dev/null; then
-              echo "Doxygen not found, installing..."
-              sudo apt-get update
-              sudo apt-get install -y doxygen graphviz
-            else
-              echo "Doxygen is already installed"
-            fi
+            # Install Doxygen and Graphviz on Ubuntu
+            echo "Installing Doxygen and Graphviz on Ubuntu..."
+            sudo apt-get update
+            sudo apt-get install -y doxygen graphviz
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            # Switch to PowerShell for Windows-specific commands
-            pwsh -Command "
-              # Install Doxygen manually on Windows
-              echo 'Installing Doxygen manually on Windows...'
+            # Install Doxygen manually on Windows using PowerShell
+            echo "Installing Doxygen manually on Windows..."
 
+            pwsh -Command "
               # Correct assignment in PowerShell
               \$url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
               \$output = 'doxygen-setup.exe'
@@ -45,11 +40,9 @@ jobs:
                 exit 1
               }
 
-              # Check if the file exists
+              # Check if the file exists and run the installer
               if (Test-Path -Path \$output) {
-                # Run the installer silently
                 Start-Process -FilePath \$output -ArgumentList '/S' -Wait
-                # Clean up installer
                 Remove-Item -Path \$output
                 echo 'Doxygen installation completed and cleaned up.'
               } else {
