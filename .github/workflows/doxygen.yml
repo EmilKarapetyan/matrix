@@ -41,7 +41,7 @@ jobs:
         run: doxygen Doxyfile
 
       - name: Deploy documentation to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.1.1
+        uses: JamesIves/github-pages-deploy-action@v4.2.0
         with:
           branch: gh-pages
           folder: docs/html  # Adjust if your docs are in a different folder
