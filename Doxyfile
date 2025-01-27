@@ -1,0 +1,57 @@
+# Doxygen configuration Matrix library
+
+# Project name
+PROJECT_NAME           = "Matrix Library"
+
+# Project version (optional)
+PROJECT_NUMBER         = "1.0"
+
+# Output directory for generated documentation
+OUTPUT_DIRECTORY      = ./docs
+
+# Input directory containing source files
+INPUT                 = ./src
+
+# File extensions to be processed by Doxygen
+FILE_PATTERNS         = *.cpp *.h *.hpp
+
+# Whether to generate documentation for private, protected, and internal members
+EXTRACT_ALL           = YES
+
+# Whether to include the source code in the documentation
+EXTRACT_PRIVATE       = YES
+EXTRACT_PROTECTED     = YES
+
+# Enable graph generation (requires Graphviz)
+HAVE_DOT              = YES
+DOT_PATH              = /usr/bin/dot  # Adjust this if needed
+DOT_GRAPH_MAX_NODES   = 1000  # Limit the size of the graph
+
+# Graphical elements (e.g., inheritance diagrams, collaboration diagrams)
+CALL_GRAPH            = YES
+CALLER_GRAPH          = YES
+INCLUDE_GRAPH         = YES
+INCLUDE_PATH          = ./src  # Optional, for external libraries
+EXCLUDE_SYMBOLS       = SomeSymbolToExclude  # Optional, if you want to exclude some symbols
+
+# Output format (HTML and LaTeX are common choices)
+GENERATE_HTML         = YES
+GENERATE_LATEX        = NO  # Set to YES if you want LaTeX (PDF) output
+
+# Use of the search engine for HTML output
+SEARCHENGINE          = YES
+
+# Enable detailed description for functions, classes, and other elements
+ALWAYS_DETAILED_SEC   = YES
+
+# Set the maximum depth for documenting class hierarchies (optional)
+CLASS_DIAGRAMS        = YES
+TEMPLATE_RELATIONS    = YES
+
+# Documentation of namespaces
+OPTIMIZE_OUTPUT_FOR_C = YES
+
+# Additional options (optional for specific use cases)
+# QUIET                = YES  # Suppress output messages
+# WARNINGS             = NO   # Disable warnings if needed
+# SHOW_FILES           = YES  # Show the list of files in the output
