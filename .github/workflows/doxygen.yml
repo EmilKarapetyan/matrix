@@ -25,31 +25,32 @@ jobs:
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
             echo "Installing Doxygen on Windows..."
             
-            # PowerShell script for Windows
-            powershell -Command |
-              $ErrorActionPreference = "Stop"
-              if (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe") {
-                Write-Host "Chocolatey found, using Chocolatey to install Doxygen..."
+            # Run PowerShell script for Windows
+            powershell -Command "
+              $ErrorActionPreference = 'Stop'
+              if (Test-Path '$env:ProgramData\chocolatey\bin\choco.exe') {
+                Write-Host 'Chocolatey found, using Chocolatey to install Doxygen...'
                 choco install doxygen -y
               } else {
-                Write-Host "Chocolatey not found, manually downloading Doxygen..."
-                $url = "https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe"
-                $output = "doxygen-setup.exe"
+                Write-Host 'Chocolatey not found, manually downloading Doxygen...'
+                $url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
+                $output = 'doxygen-setup.exe'
                 
                 try {
-                  Write-Host "Downloading Doxygen from $url..."
+                  Write-Host 'Downloading Doxygen from $url...'
                   Invoke-WebRequest -Uri $url -OutFile $output
-                  Write-Host "Doxygen installer downloaded successfully."
+                  Write-Host 'Doxygen installer downloaded successfully.'
                 } catch {
-                  Write-Error "Failed to download Doxygen installer."
+                  Write-Error 'Failed to download Doxygen installer.'
                   exit 1
                 }
 
                 # Run the installer
                 Start-Process -FilePath $output -ArgumentList '/S' -Wait
                 Remove-Item -Path $output
-                Write-Host "Doxygen installation completed."
+                Write-Host 'Doxygen installation completed.'
               }
+            "
           fi
         shell: bash
 
