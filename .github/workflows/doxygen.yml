@@ -27,19 +27,22 @@ jobs:
               echo "Doxygen is already installed"
             fi
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            # Install Doxygen manually on Windows
-            echo "Installing Doxygen manually on Windows..."
+            # Switch to PowerShell for Windows-specific commands
+            pwsh -Command "
+              # Install Doxygen manually on Windows
+              echo 'Installing Doxygen manually on Windows...'
 
-            # Download Doxygen installer from official website
-            $url = "https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe"
-            $output = "doxygen-setup.exe"
-            Invoke-WebRequest -Uri $url -OutFile $output
+              # Download Doxygen installer from the official website
+              $url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
+              $output = 'doxygen-setup.exe'
+              Invoke-WebRequest -Uri $url -OutFile $output
 
-            # Run the installer silently
-            Start-Process -FilePath $output -ArgumentList "/S" -Wait
+              # Run the installer silently
+              Start-Process -FilePath $output -ArgumentList '/S' -Wait
 
-            # Clean up installer
-            Remove-Item -Path $output
+              # Clean up installer
+              Remove-Item -Path $output
+            "
           fi
         shell: bash
 
