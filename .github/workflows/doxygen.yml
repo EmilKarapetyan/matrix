@@ -23,17 +23,15 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y doxygen graphviz
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            # Install Doxygen on Windows
             echo "Installing Doxygen on Windows..."
 
-            # Check if Chocolatey is installed
+            # Install Doxygen on Windows using Chocolatey
             if (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe") {
               Write-Host "Chocolatey found, using Chocolatey to install Doxygen..."
               choco install doxygen -y
             } else {
               Write-Host "Chocolatey not found, manually downloading Doxygen..."
-
-              # Fallback: Manually download Doxygen from a direct link
+              # Manually download Doxygen from GitHub
               $url = "https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe"
               $output = "doxygen-setup.exe"
               
