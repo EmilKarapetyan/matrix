@@ -32,16 +32,18 @@ jobs:
               # Install Doxygen manually on Windows
               echo 'Installing Doxygen manually on Windows...'
 
-              # Download Doxygen installer from the official website
-              $url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
-              $output = 'doxygen-setup.exe'
-              Invoke-WebRequest -Uri $url -OutFile $output
+              # Correct assignment in PowerShell
+              \$url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
+              \$output = 'doxygen-setup.exe'
+
+              # Download Doxygen installer
+              Invoke-WebRequest -Uri \$url -OutFile \$output
 
               # Run the installer silently
-              Start-Process -FilePath $output -ArgumentList '/S' -Wait
+              Start-Process -FilePath \$output -ArgumentList '/S' -Wait
 
               # Clean up installer
-              Remove-Item -Path $output
+              Remove-Item -Path \$output
             "
           fi
         shell: bash
