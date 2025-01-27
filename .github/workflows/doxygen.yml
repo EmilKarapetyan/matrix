@@ -23,44 +23,34 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y doxygen graphviz
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            # Install Doxygen manually on Windows using PowerShell
-            echo "Installing Doxygen manually on Windows..."
-            
-            pwsh -Command "
-              # Define URL and output file name
-              \$url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
-              \$output = 'doxygen-setup.exe'
+            # Install Doxygen on Windows
+            echo "Installing Doxygen on Windows..."
 
-              # Debug: Check if the URL is accessible
-              Write-Host 'Checking URL accessibility...'
+            # Check if Chocolatey is installed
+            if (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe") {
+              Write-Host "Chocolatey found, using Chocolatey to install Doxygen..."
+              choco install doxygen -y
+            } else {
+              Write-Host "Chocolatey not found, manually downloading Doxygen..."
+
+              # Fallback: Manually download Doxygen from a direct link
+              $url = "https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe"
+              $output = "doxygen-setup.exe"
+              
               try {
-                Invoke-WebRequest -Uri \$url -Method Head
-                Write-Host 'URL is accessible.'
+                Write-Host "Downloading Doxygen from $url..."
+                Invoke-WebRequest -Uri $url -OutFile $output
+                Write-Host "Doxygen installer downloaded successfully."
               } catch {
-                Write-Error 'Failed to access the URL. Please check the URL or network connection.'
+                Write-Error "Failed to download Doxygen installer."
                 exit 1
               }
 
-              # Download Doxygen installer
-              try {
-                Invoke-WebRequest -Uri \$url -OutFile \$output
-                Write-Host 'Doxygen installer downloaded successfully.'
-              } catch {
-                Write-Error 'Failed to download Doxygen installer.'
-                exit 1
-              }
-
-              # Check if the file exists and run the installer
-              if (Test-Path -Path \$output) {
-                Write-Host 'Starting Doxygen installer...'
-                Start-Process -FilePath \$output -ArgumentList '/S' -Wait
-                Remove-Item -Path \$output
-                Write-Host 'Doxygen installation completed and cleaned up.'
-              } else {
-                Write-Error 'Installer file was not downloaded.'
-                exit 1
-              }
-            "
+              # Run the installer
+              Start-Process -FilePath $output -ArgumentList '/S' -Wait
+              Remove-Item -Path $output
+              Write-Host "Doxygen installation completed."
+            }
           fi
         shell: bash
 
@@ -72,4 +62,3 @@ jobs:
         with:
           branch: gh-pages
           folder: docs/html  # Adjust if your docs are in a different folder
-
