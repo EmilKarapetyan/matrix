@@ -37,13 +37,25 @@ jobs:
               \$output = 'doxygen-setup.exe'
 
               # Download Doxygen installer
-              Invoke-WebRequest -Uri \$url -OutFile \$output
+              try {
+                Invoke-WebRequest -Uri \$url -OutFile \$output
+                echo 'Doxygen installer downloaded successfully.'
+              } catch {
+                Write-Error 'Failed to download Doxygen installer.'
+                exit 1
+              }
 
-              # Run the installer silently
-              Start-Process -FilePath \$output -ArgumentList '/S' -Wait
-
-              # Clean up installer
-              Remove-Item -Path \$output
+              # Check if the file exists
+              if (Test-Path -Path \$output) {
+                # Run the installer silently
+                Start-Process -FilePath \$output -ArgumentList '/S' -Wait
+                # Clean up installer
+                Remove-Item -Path \$output
+                echo 'Doxygen installation completed and cleaned up.'
+              } else {
+                Write-Error 'Installer file was not downloaded.'
+                exit 1
+              }
             "
           fi
         shell: bash
