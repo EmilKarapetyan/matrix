@@ -18,7 +18,7 @@ jobs:
       - name: Set up Doxygen and Graphviz
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            # Check if Doxygen is already installed
+            # Check if Doxygen is already installed on Ubuntu
             if ! command -v doxygen &> /dev/null; then
               echo "Doxygen not found, installing..."
               sudo apt-get update
@@ -27,10 +27,10 @@ jobs:
               echo "Doxygen is already installed"
             fi
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            # Check if Doxygen is already installed
+            # Check if Doxygen is already installed on Windows
             if ! command -v doxygen &> /dev/null; then
               echo "Doxygen not found, installing..."
-              choco install doxygen
+              choco install doxygen -y --source https://community.chocolatey.org/api/v2/
             else
               echo "Doxygen is already installed"
             fi
