@@ -31,10 +31,20 @@ jobs:
               \$url = 'https://github.com/doxygen/doxygen/releases/download/1.9.3/doxygen-1.9.3-setup.exe'
               \$output = 'doxygen-setup.exe'
 
+              # Debug: Check if the URL is accessible
+              Write-Host 'Checking URL accessibility...'
+              try {
+                Invoke-WebRequest -Uri \$url -Method Head
+                Write-Host 'URL is accessible.'
+              } catch {
+                Write-Error 'Failed to access the URL. Please check the URL or network connection.'
+                exit 1
+              }
+
               # Download Doxygen installer
               try {
                 Invoke-WebRequest -Uri \$url -OutFile \$output
-                echo 'Doxygen installer downloaded successfully.'
+                Write-Host 'Doxygen installer downloaded successfully.'
               } catch {
                 Write-Error 'Failed to download Doxygen installer.'
                 exit 1
@@ -42,9 +52,10 @@ jobs:
 
               # Check if the file exists and run the installer
               if (Test-Path -Path \$output) {
+                Write-Host 'Starting Doxygen installer...'
                 Start-Process -FilePath \$output -ArgumentList '/S' -Wait
                 Remove-Item -Path \$output
-                echo 'Doxygen installation completed and cleaned up.'
+                Write-Host 'Doxygen installation completed and cleaned up.'
               } else {
                 Write-Error 'Installer file was not downloaded.'
                 exit 1
@@ -61,3 +72,4 @@ jobs:
         with:
           branch: gh-pages
           folder: docs/html  # Adjust if your docs are in a different folder
+
