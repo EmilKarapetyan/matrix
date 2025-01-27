@@ -33,7 +33,7 @@ jobs:
                 choco install doxygen -y
               } else {
                 Write-Host 'Chocolatey not found, manually downloading Doxygen...'
-                \$url = 'https://github.com/doxygen/doxygen/releases/download/1.13.2/doxygen-1.13.2-setup.exe'
+                \$url = 'https://github.com/doxygen/doxygen/releases/tag/Release_1_13_2/doxygen-1.13.2-setup.exe'
                 \$output = 'doxygen-setup.exe'
                 
                 try {
