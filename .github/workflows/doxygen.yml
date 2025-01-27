@@ -25,8 +25,8 @@ jobs:
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
             echo "Installing Doxygen on Windows..."
             
-            # Run PowerShell script for Windows
-            powershell -Command "
+            # PowerShell script for Windows
+            pwsh -Command "
               $ErrorActionPreference = 'Stop'
               if (Test-Path '$env:ProgramData\chocolatey\bin\choco.exe') {
                 Write-Host 'Chocolatey found, using Chocolatey to install Doxygen...'
