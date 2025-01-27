@@ -41,7 +41,7 @@ jobs:
                   Invoke-WebRequest -Uri \$url -OutFile \$output
                   Write-Host 'Doxygen installer downloaded successfully.'
                 } catch {
-                  Write-Error 'Failed to download Doxygen installer.'
+                  Write-Error 'Failed to download Doxygen installer. Check if the URL is accessible or if there is a network issue.'
                   exit 1
                 }
 
