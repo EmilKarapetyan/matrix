@@ -9,7 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
 
     steps:
       - name: Checkout repository
@@ -27,29 +27,18 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          if (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe") {
-            Write-Host "Chocolatey found, using Chocolatey to install Doxygen..."
-            choco install doxygen -y
-          } else {
-            Write-Host "Chocolatey not found, manually downloading Doxygen..."
-            $url = 'https://www.doxygen.nl/files/doxygen-1.9.8-setup.exe'
-            $output = "$env:RUNNER_TEMP\doxygen-setup.exe"
 
-            try {
-              Write-Host "Downloading Doxygen from $url..."
-              Invoke-WebRequest -Uri $url -OutFile $output
-              Write-Host "Doxygen installer downloaded successfully."
-            } catch {
-              Write-Error "Failed to download Doxygen installer. Check if the URL is accessible or if there is a network issue."
-              exit 1
-            }
-
-            # Run the installer
-            Write-Host "Installing Doxygen..."
-            Start-Process -FilePath $output -ArgumentList '/S' -Wait
-            Remove-Item -Path $output
-            Write-Host "Doxygen installation completed."
+          # Install Chocolatey if not already installed
+          if (-not (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe")) {
+              Write-Host "Installing Chocolatey..."
+              Set-ExecutionPolicy Bypass -Scope Process -Force
+              [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+              Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
           }
+
+          # Install Doxygen using Chocolatey
+          Write-Host "Installing Doxygen using Chocolatey..."
+          choco install doxygen.install -y --source="https://community.chocolatey.org/api/v2/"
 
       - name: Verify Doxygen Installation
         run: |
