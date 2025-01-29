@@ -6,65 +6,35 @@ on:
 
 jobs:
   doxygen:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest]
+    runs-on: windows-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Doxygen on Windows
-        if: runner.os == 'Windows'
+      - name: List installed Chocolatey packages
+        shell: pwsh
+        run: choco list --local-only
+
+      - name: Force install Doxygen with Chocolatey
         shell: pwsh
         run: |
-          $ErrorActionPreference = 'Stop'
+          choco install doxygen.install -y --force --debug --verbose
 
-          # Install Chocolatey if not installed
-          if (-not (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe")) {
-              Write-Host "Installing Chocolatey..."
-              Set-ExecutionPolicy Bypass -Scope Process -Force
-              [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
-              Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-          }
-
-          # Install Doxygen using Chocolatey
-          Write-Host "Installing Doxygen using Chocolatey..."
-          choco install doxygen.install -y --source="https://community.chocolatey.org/api/v2/"
-
-      - name: Verify Doxygen Installation (Windows)
-        if: runner.os == 'Windows'
+      - name: Find Doxygen Installation Path
         shell: pwsh
         run: |
-          $doxygenPath = "C:\ProgramData\chocolatey\bin\doxygen.exe"
-          if (Test-Path $doxygenPath) {
-            Write-Host "Doxygen installed successfully!"
-            &$doxygenPath --version
-          } else {
-            Write-Error "Doxygen installation failed or is not in PATH."
-            exit 1
-          }
+          Get-Command doxygen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Definition
 
-      - name: Manually Add Doxygen to PATH (Windows)
-        if: runner.os == 'Windows'
+      - name: Manually Add Doxygen to PATH
         shell: pwsh
         run: |
-          echo "C:\ProgramData\chocolatey\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+          echo "C:\Program Files\Doxygen\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
-      - name: Ensure docs/html directory exists
-        run: mkdir -p docs/html
-
-      - name: Clean up old documentation
-        run: rm -rf docs/html/*
+      - name: Verify Doxygen Installation
+        shell: pwsh
+        run: doxygen --version
 
       - name: Generate documentation
         shell: pwsh
-        run: |
-          doxygen Doxyfile || exit 1
-
-      - name: Deploy documentation to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.7.2
-        with:
-          branch: gh-pages
-          folder: docs/html
+        run: doxygen Doxyfile
