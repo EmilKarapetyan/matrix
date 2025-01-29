@@ -37,4 +37,4 @@ jobs:
 
       - name: Generate documentation
         shell: pwsh
-        run: doxygen Doxyfile
+        run: doxygen Doxyfile 2>&1 | Tee-Object -FilePath doxygen.log
