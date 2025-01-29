@@ -15,20 +15,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Doxygen and Graphviz
-        if: matrix.os == 'ubuntu-latest'
+      - name: Set up Doxygen and Graphviz (Ubuntu)
+        if: runner.os == 'Linux'
         run: |
           echo "Installing Doxygen and Graphviz on Ubuntu..."
           sudo apt-get update
           sudo apt-get install -y doxygen graphviz
 
       - name: Set up Doxygen on Windows
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
 
-          # Install Chocolatey if not already installed
+          # Install Chocolatey if not installed
           if (-not (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe")) {
               Write-Host "Installing Chocolatey..."
               Set-ExecutionPolicy Bypass -Scope Process -Force
@@ -41,12 +41,16 @@ jobs:
           choco install doxygen.install -y --source="https://community.chocolatey.org/api/v2/"
 
       - name: Verify Doxygen Installation
+        shell: bash
         run: |
-          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
             doxygen --version
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+          else
             pwsh -Command "doxygen --version"
           fi
+
+      - name: Ensure docs/html directory exists
+        run: mkdir -p docs/html
 
       - name: Clean up old documentation
         run: rm -rf docs/html/*
@@ -54,11 +58,9 @@ jobs:
       - name: Generate documentation
         run: doxygen Doxyfile
 
-      - name: Ensure docs/html directory exists
-        run: mkdir -p docs/html
-
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.7.2
         with:
           branch: gh-pages
           folder: docs/html
+
