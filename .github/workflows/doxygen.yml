@@ -33,11 +33,6 @@ jobs:
           Write-Host "Installing Doxygen using Chocolatey..."
           choco install doxygen.install -y --source="https://community.chocolatey.org/api/v2/"
 
-      - name: Refresh PATH (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: refreshenv
-
       - name: Verify Doxygen Installation (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
