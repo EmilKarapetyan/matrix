@@ -49,7 +49,7 @@ CLASS_DIAGRAMS        = YES
 TEMPLATE_RELATIONS    = YES
 
 # Documentation of namespaces
-OPTIMIZE_OUTPUT_FOR_C = YES
+OPTIMIZE_OUTPUT_FOR_C = NO
 
 # Additional options (optional for specific use cases)
 # QUIET                = YES  # Suppress output messages
