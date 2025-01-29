@@ -51,6 +51,8 @@ TEMPLATE_RELATIONS    = YES
 # Documentation of namespaces
 OPTIMIZE_OUTPUT_FOR_C = NO
 
+HAVE_DOT = YES
+
 # Additional options (optional for specific use cases)
 # QUIET                = YES  # Suppress output messages
 # WARNINGS             = NO   # Disable warnings if needed
