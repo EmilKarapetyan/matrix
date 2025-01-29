@@ -13,52 +13,63 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Doxygen and Graphviz
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          echo "Installing Doxygen and Graphviz on Ubuntu..."
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+
+      - name: Set up Doxygen on Windows
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (Test-Path "$env:ProgramData\chocolatey\bin\choco.exe") {
+            Write-Host "Chocolatey found, using Chocolatey to install Doxygen..."
+            choco install doxygen -y
+          } else {
+            Write-Host "Chocolatey not found, manually downloading Doxygen..."
+            $url = 'https://www.doxygen.nl/files/doxygen-1.9.8-setup.exe'
+            $output = "$env:RUNNER_TEMP\doxygen-setup.exe"
+
+            try {
+              Write-Host "Downloading Doxygen from $url..."
+              Invoke-WebRequest -Uri $url -OutFile $output
+              Write-Host "Doxygen installer downloaded successfully."
+            } catch {
+              Write-Error "Failed to download Doxygen installer. Check if the URL is accessible or if there is a network issue."
+              exit 1
+            }
+
+            # Run the installer
+            Write-Host "Installing Doxygen..."
+            Start-Process -FilePath $output -ArgumentList '/S' -Wait
+            Remove-Item -Path $output
+            Write-Host "Doxygen installation completed."
+          }
+
+      - name: Verify Doxygen Installation
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            # Install Doxygen and Graphviz on Ubuntu
-            echo "Installing Doxygen and Graphviz on Ubuntu..."
-            sudo apt-get update
-            sudo apt-get install -y doxygen graphviz
+            doxygen --version
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            echo "Installing Doxygen on Windows..."
-            
-            # PowerShell script for Windows
-            pwsh -Command "
-              \$ErrorActionPreference = 'Stop'
-              if (Test-Path '\$env:ProgramData\chocolatey\bin\choco.exe') {
-                Write-Host 'Chocolatey found, using Chocolatey to install Doxygen...'
-                choco install doxygen -y
-              } else {
-                Write-Host 'Chocolatey not found, manually downloading Doxygen...'
-                \$url = 'https://github.com/doxygen/doxygen/releases/tag/Release_1_13_2/doxygen-1.13.2-setup.exe'
-                \$output = 'doxygen-setup.exe'
-                
-                try {
-                  Write-Host 'Downloading Doxygen from \$url...'
-                  Invoke-WebRequest -Uri \$url -OutFile \$output
-                  Write-Host 'Doxygen installer downloaded successfully.'
-                } catch {
-                  Write-Error 'Failed to download Doxygen installer. Check if the URL is accessible or if there is a network issue.'
-                  exit 1
-                }
-
-                # Run the installer
-                Start-Process -FilePath \$output -ArgumentList '/S' -Wait
-                Remove-Item -Path \$output
-                Write-Host 'Doxygen installation completed.'
-              }
-            "
+            pwsh -Command "doxygen --version"
           fi
-        shell: bash
+
+      - name: Clean up old documentation
+        run: rm -rf docs/html/*
 
       - name: Generate documentation
         run: doxygen Doxyfile
+
+      - name: Ensure docs/html directory exists
+        run: mkdir -p docs/html
 
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.7.2
         with:
           branch: gh-pages
-          folder: docs/html  # Adjust if your docs are in a different folder
+          folder: docs/html
