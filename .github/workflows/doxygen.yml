@@ -15,13 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Doxygen and Graphviz (Ubuntu)
-        if: runner.os == 'Linux'
-        run: |
-          echo "Installing Doxygen and Graphviz on Ubuntu..."
-          sudo apt-get update
-          sudo apt-get install -y doxygen graphviz
-
       - name: Set up Doxygen on Windows
         if: runner.os == 'Windows'
         shell: pwsh
@@ -40,14 +33,29 @@ jobs:
           Write-Host "Installing Doxygen using Chocolatey..."
           choco install doxygen.install -y --source="https://community.chocolatey.org/api/v2/"
 
-      - name: Verify Doxygen Installation
-        shell: bash
+      - name: Refresh PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: refreshenv
+
+      - name: Verify Doxygen Installation (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          if [[ "${{ runner.os }}" == "Linux" ]]; then
-            doxygen --version
-          else
-            pwsh -Command "doxygen --version"
-          fi
+          $doxygenPath = "C:\ProgramData\chocolatey\bin\doxygen.exe"
+          if (Test-Path $doxygenPath) {
+            Write-Host "Doxygen installed successfully!"
+            &$doxygenPath --version
+          } else {
+            Write-Error "Doxygen installation failed or is not in PATH."
+            exit 1
+          }
+
+      - name: Manually Add Doxygen to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          echo "C:\ProgramData\chocolatey\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
 
       - name: Ensure docs/html directory exists
         run: mkdir -p docs/html
@@ -56,11 +64,12 @@ jobs:
         run: rm -rf docs/html/*
 
       - name: Generate documentation
-        run: doxygen Doxyfile
+        shell: pwsh
+        run: |
+          doxygen Doxyfile || exit 1
 
       - name: Deploy documentation to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.7.2
         with:
           branch: gh-pages
           folder: docs/html
-
