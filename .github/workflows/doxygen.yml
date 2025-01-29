@@ -14,7 +14,7 @@ jobs:
 
       - name: List installed Chocolatey packages
         shell: pwsh
-        run: choco list --local-only
+        run: choco list --limit-output
 
       - name: Force install Doxygen with Chocolatey
         shell: pwsh
